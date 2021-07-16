@@ -33,7 +33,9 @@ timestampRegex="[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}-[[:d
 # IF YOU ARE MODIFYING THIS THEN THE FILE MATCHING IS PROBABLY WRONG, MAKE SURE adoptium/api.adoptium.net and adoptopenjdk/openjdk-api, ARE UPDATED TOO
 #      OpenJDK 8U_             -jdk        x64_           Linux_         hotspot_         2018-06-15-10-10                .tar.gz
 #      OpenJDK 11_             -jdk        x64_           Linux_         hotspot_         11_28                           .tar.gz
-regex="OpenJDK([[:digit:]]+)U?(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi)";
+#regex="OpenJDK([[:digit:]]+)U?(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi)";
+# Semeru-jdk_x64_linux_11.0.12_5_openj9-0.27.0.tar.gz
+regex="Semeru(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm)";
 regexArchivesOnly="${regex}$";
 
 # Check that a TAG, e.g. jdk11.0.12+7, has been passed in.
@@ -64,7 +66,7 @@ else
 fi
 
 # Rename to ensure a consistent timestamp across release
-for file in OpenJDK*
+for file in Semeru-*
 do
   echo "Processing $file";
 
@@ -98,7 +100,7 @@ done
 
 # Grab the list of files to upload
 # TODO - shellcheck (SC2012) tells us that using find is better than ls here.
-files=$(ls "$PWD"/OpenJDK*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g')
+files=`ls $PWD/Semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
 
 echo ""
 echo "RELEASE flag is set to: $RELEASE"
