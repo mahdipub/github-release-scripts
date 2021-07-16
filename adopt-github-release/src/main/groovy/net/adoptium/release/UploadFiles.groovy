@@ -33,14 +33,12 @@ class UploadAdoptReleaseFiles {
     void release() {
         def grouped = files.groupBy {
             switch (it.getName()) {
-                // Only release file names containing "hotspot" or "sources"
-                case ~/.*hotspot.*/: "adopt"; break;
-                case ~/.*sources.*/: "adopt"; break;
+                case ~/.*semeru.*/: "ibm"; break;
             }
         }
-        GHRepository repo = getRepo("adopt")
+        GHRepository repo = getRepo("ibm")
         GHRelease release = getRelease(repo)
-        uploadFiles(release, grouped.get("adopt"))
+        uploadFiles(release, grouped.get("ibm"))
     }
 
     private GHRepository getRepo(String vendor) {
@@ -67,8 +65,8 @@ class UploadAdoptReleaseFiles {
         def numberVersion = version.replaceAll(/[^0-9]/, "")
         def repoName = "${org}/temurin${numberVersion}-binaries"
 
-        if (vendor != "adopt") {
-            repoName = "${org}/open${version}-${vendor}-binaries"
+        if (vendor == "ibm") {
+            repoName = "${org}/semeru${numberVersion}-binaries"
         }
 
         return github.getRepository(repoName)
