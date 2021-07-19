@@ -37,7 +37,9 @@ class UploadAdoptReleaseFiles {
             }
         }
         GHRepository repo = getRepo("ibm")
+        println("REPO:$repo")
         GHRelease release = getRelease(repo)
+        println("RELEASE:$release")
         uploadFiles(release, grouped.get("ibm"))
     }
 
@@ -68,7 +70,7 @@ class UploadAdoptReleaseFiles {
         if (vendor == "ibm") {
             repoName = "${org}/semeru${numberVersion}-binaries"
         }
-
+        println("reponame:${repoName}")
         return github.getRepository(repoName)
     }
 
