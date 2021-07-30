@@ -98,6 +98,7 @@ class UploadAdoptReleaseFiles {
             release = repo
                     .createRelease(tag)
                     .body(description)
+                    .draft(true)
                     .name(tag)
                     .prerelease(!this.release)
                     .create()
