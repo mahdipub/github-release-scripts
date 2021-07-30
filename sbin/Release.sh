@@ -108,7 +108,10 @@ echo ""
 
 RELEASE_OPTION=""
 if [ "$RELEASE" == "true" ]; then
-  description="Official Release of $TAG"
+    versionNumber = VERSION - 'jdk'
+  description="Official Release of IBM Semeru Runtime for Java $VERSION with Eclipse OpenJ9 $TAG
+License: GPL v2 with Classpath exception
+Certification: No"
   RELEASE_OPTION="--release"
 else
   # -beta is a special designation that we must use to indicate non GA (non TCK'd) builds.
