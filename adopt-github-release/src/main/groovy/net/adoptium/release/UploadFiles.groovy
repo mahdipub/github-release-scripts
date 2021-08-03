@@ -91,10 +91,12 @@ class UploadAdoptReleaseFiles {
     }
 
     private GHRelease getRelease(GHRepository repo) {
+        println("get releases")
         GHRelease release = repo
                 .getReleaseByTagName(tag)
-
+        println("got releases")
         if (release == null) {
+            println("releases was null")
             release = repo
                     .createRelease(tag)
                     .body(description)
@@ -103,6 +105,7 @@ class UploadAdoptReleaseFiles {
                     .prerelease(!this.release)
                     .create()
         }
+        println("Done getting release")
         return release
     }
 }
