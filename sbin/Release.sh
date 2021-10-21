@@ -35,7 +35,7 @@ timestampRegex="[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}-[[:d
 #      OpenJDK 11_             -jdk        x64_           Linux_         hotspot_         11_28                           .tar.gz
 #regex="OpenJDK([[:digit:]]+)U?(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi)";
 # Semeru-jdk_x64_linux_11.0.12_5_openj9-0.27.0.tar.gz
-regex="ibm-semeru(-open|-certified)(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm|bin)";
+regex="ibm-semeru(-open|-certified)(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm|bin|sig)";
 regexArchivesOnly="${regex}$";
 
 # Check that a TAG, e.g. jdk11.0.12+7, has been passed in.
@@ -100,7 +100,7 @@ done
 
 # Grab the list of files to upload
 # TODO - shellcheck (SC2012) tells us that using find is better than ls here.
-files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
+files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin,.sig} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
 
 echo ""
 echo "RELEASE flag is set to: $RELEASE"
