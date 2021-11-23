@@ -65,6 +65,12 @@ else
    org="--org \"${GITHUB_ORG}\""
 fi
 
+if [ -z "${EDITION}" ]; then
+   edition=""
+else
+   edition="--edition \"${EDITION}\""
+fi
+
 # Rename to ensure a consistent timestamp across release
 for file in ibm-semeru-*
 do
@@ -123,5 +129,5 @@ fi
 if [ "$DRY_RUN" == "false" ]; then
     cd adopt-github-release || exit 1
     chmod +x gradlew
-    GRADLE_USER_HOME=./gradle-cache ./gradlew --no-daemon run --args="--version \"${VERSION}\" --tag \"${TAG}\" --description \"${description}\" ${server} ${org} $RELEASE_OPTION $files"
+    GRADLE_USER_HOME=./gradle-cache ./gradlew --no-daemon run --args="--version \"${VERSION}\" --tag \"${TAG}\" --description \"${description}\" ${server} ${org} ${edition} $RELEASE_OPTION $files"
 fi

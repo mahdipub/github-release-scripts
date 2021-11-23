@@ -19,8 +19,9 @@ class UploadAdoptReleaseFiles {
     private final String version
     private final String server
     private final String org
+    private final String edition
 
-    UploadAdoptReleaseFiles(String tag, String description, boolean release, String version, String server, String org, List<File> files) {
+    UploadAdoptReleaseFiles(String tag, String description, boolean release, String version, String server, String org, String edition, List<File> files) {
         this.tag = tag
         this.description = description
         this.release = release
@@ -28,6 +29,7 @@ class UploadAdoptReleaseFiles {
         this.version = version
         this.server = server
         this.org = org
+        this.edition = edition
     }
 
     void release() {
@@ -35,10 +37,6 @@ class UploadAdoptReleaseFiles {
             switch (it.getName()) {
                 case ~/.*semeru.*/: "ibm"; break;
             }
-        }
-        def edition = 'ibm'
-        if (files.contains('certified')) {
-            edition = 'ibm-ce'
         }
         GHRepository repo = getRepo(edition)
         println("REPO:$repo")
@@ -71,9 +69,9 @@ class UploadAdoptReleaseFiles {
         def numberVersion = version.replaceAll(/[^0-9]/, "")
         def repoName = "${org}/temurin${numberVersion}-binaries"
 
-        if (vendor == "ibm") {
+        if (vendor == "open") {
             repoName = "${org}/semeru${numberVersion}-binaries"
-        } else if (vendor == "ibm-ce") {
+        } else if (vendor == "certified") {
             repoName = "${org}/semeru${numberVersion}-certified-binaries"
         }
         println("reponame:${repoName}")
@@ -130,6 +128,7 @@ static void main(String[] args) {
             options.v,
             options.s,
             options.o,
+            options.p,
             files,
     ).release()
 }
@@ -147,6 +146,7 @@ private OptionAccessor parseArgs(String[] args) {
                 h longOpt: 'help', 'Show usage information'
                 s longOpt: 'server', type: String, args: 1, optionalArg: true, defaultValue: 'https://api.github.com', 'Github server'
                 o longOpt: 'org', type: String, args: 1, optionalArg: true, defaultValue: 'adoptium', 'Github org'
+                p longOpt: 'edition', type: String, args: 1, optionalArg: true, defaultValue: 'open', 'Semeru Edition'
             }
 
     def options = cliBuilder.parse(args)
