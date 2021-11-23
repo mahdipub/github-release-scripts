@@ -36,7 +36,11 @@ class UploadAdoptReleaseFiles {
                 case ~/.*semeru.*/: "ibm"; break;
             }
         }
-        GHRepository repo = getRepo("ibm")
+        def edition = 'ibm'
+        if (files.contains('certified')) {
+            edition = 'ibm-ce'
+        }
+        GHRepository repo = getRepo(edition)
         println("REPO:$repo")
         GHRelease release = getRelease(repo)
         println("RELEASE:$release")
@@ -69,6 +73,8 @@ class UploadAdoptReleaseFiles {
 
         if (vendor == "ibm") {
             repoName = "${org}/semeru${numberVersion}-binaries"
+        } else if (vendor == "ibm-ce") {
+            repoName = "${org}/semeru${numberVersion}-certified-binaries"
         }
         println("reponame:${repoName}")
         return github.getRepository(repoName)
