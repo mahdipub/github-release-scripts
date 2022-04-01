@@ -73,6 +73,8 @@ class UploadAdoptReleaseFiles {
             repoName = "${org}/semeru${numberVersion}-binaries"
         } else if (vendor == "certified") {
             repoName = "${org}/semeru${numberVersion}-certified-binaries"
+        } else if (vendor == "ea") {
+            repoName = "${org}/semeru${numberVersion}-ea-binaries"
         }
         println("reponame:${repoName}")
         return github.getRepository(repoName)

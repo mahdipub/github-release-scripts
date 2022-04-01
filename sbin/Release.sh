@@ -123,6 +123,10 @@ Certification: No"
         description="Official Release of IBM Semeru Runtime Certified Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
 License: IBM Commercial
 Certification: Yes"
+    elif [ "$EDITION" == "ea" ]; then
+        description="Early Access Release of IBM Semeru Runtime Open Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
+License: GPL v2 with Classpath exception
+Certification: No"
     fi
   RELEASE_OPTION="--release"
 else
