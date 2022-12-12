@@ -71,17 +71,18 @@ else
    edition="--edition \"${EDITION}\""
 fi
 
-# Rename to ensure a consistent timestamp across release
+# Rename archive files (and their associated files: checksum, metadata, sig) to ensure a consistent timestamp across release
 for file in ibm-semeru-*
 do
-  echo "Processing $file";
-
+  # If file name is an archive rename timestamp along with it's associated files 
   if [[ $file =~ $regexArchivesOnly ]];
   then
+    echo "Processing archive file: $file";
+
     newName=$(echo "${file}" | sed -r "s/${timestampRegex}/$TIMESTAMP/")
 
     if [ "${file}" != "${newName}" ]; then
-      # Rename archive and checksum file with new timestamp
+      # Rename archive and its associated files with new timestamp
       echo "Renaming ${file} to ${newName}"
       mv "${file}" "${newName}"
       mv "${file}.sha256.txt" "${newName}.sha256.txt"
@@ -99,9 +100,34 @@ do
     FILE_OS=${BASH_REMATCH[4]};
     FILE_VARIANT=${BASH_REMATCH[5]};
     FILE_TS_OR_VERSION=${BASH_REMATCH[6]};
-    FILE_EXTENSION=${BASH_REMATCH[8]};
+    FILE_EXTENSION=${BASH_REMATCH[7]};
 
     echo "version:${FILE_VERSION} type: ${FILE_TYPE} arch:${FILE_ARCH} os:${FILE_OS} variant:${FILE_VARIANT} timestamp or version:${FILE_TS_OR_VERSION} timestamp:${TIMESTAMP} extension:${FILE_EXTENSION}";
+  fi
+done
+
+# Rename any remaining non-archive file timestamps that have not already been renamed
+for file in OpenJDK*
+do
+  if [[ ! $file =~ $regexArchivesOnly ]];
+  then
+    echo "Processing non-archive file: $file";
+
+    # Check no new file type archive has been added without updating regexArchivesOnly
+    if [[ $file == *.tar.gz ]] || [[ $file == *.zip ]] || [[ $file == *.pkg ]] || [[ $file == *.msi ]]; then
+      "ERROR: ${file} is an archive but does not match regex ${regexArchivesOnly}, please update sbin/Release.sh"
+      exit 1
+    fi
+
+    if [[ $file =~ $timestampRegex ]]; then
+      newName=$(echo "${file}" | sed -r "s/${timestampRegex}/$TIMESTAMP/")
+
+      if [ "${file}" != "${newName}" ]; then
+        # Rename non-archive file with new timestamp
+        echo "Renaming ${file} to ${newName}"
+        mv "${file}" "${newName}"
+      fi
+    fi
   fi
 done
 
