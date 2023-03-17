@@ -37,7 +37,7 @@ timestampRegex="[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}-[[:d
 #      OpenJDK 11_             -jdk        x64_           Linux_         hotspot_         11_28                           .tar.gz
 #regex="OpenJDK([[:digit:]]+)U?(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi)";
 # Semeru-jdk_x64_linux_11.0.12_5_openj9-0.27.0.tar.gz
-regex="ibm-semeru(-open|-certified)(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm|bin|sig)";
+regex="ibm-semeru(-open|-certified)(-jre|-jdk|-debugimage|-testimage)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm|bin)";
 regexArchivesOnly="${regex}$";
 
 # Check that a TAG, e.g. jdk11.0.12+7, has been passed in.
