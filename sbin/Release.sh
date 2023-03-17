@@ -118,47 +118,7 @@ if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
   done
 
   # Rename any remaining non-archive file timestamps that have not already been renamed
-  for file in OpenJDK*
-  do
-    if [[ ! $file =~ $regexArchivesOnly && $file != *"makefailurelogs"* ]];
-    then
-      echo "Processing non-archive file: $file";
-
-      # Check no new file type archive has been added without updating regexArchivesOnly
-      if [[ $file == *.tar.gz ]] || [[ $file == *.zip ]] || [[ $file == *.pkg ]] || [[ $file == *.msi ]]; then
-        echo "ERROR: ${file} is an archive but does not match regex ${regexArchivesOnly}, please update sbin/Release.sh"
-        exit 1
-      fi
-
-      newName=$(echo "${file}" | sed -r "s/${timestampRegex}/$TIMESTAMP/")
-
-      if [ "${file}" != "${newName}" ]; then
-        # Rename archive and its associated files with new timestamp
-        echo "Renaming ${file} to ${newName}"
-        mv "${file}" "${newName}"
-        mv "${file}.sha256.txt" "${newName}.sha256.txt"
-        mv "${file}.json" "${newName}.json"
-        mv "${file}.sig" "${newName}.sig"
-      fi
-
-      # Fix checksum file name
-      strippedFileName=$(echo "${newName}" | sed -r "s/.+\\///g")
-      sed -i -r "s/^([0-9a-fA-F ]+).*/\1${strippedFileName}/g" "${newName}.sha256.txt"
-
-      FILE_VERSION=${BASH_REMATCH[1]};
-      FILE_TYPE=${BASH_REMATCH[2]};
-      FILE_ARCH=${BASH_REMATCH[3]};
-      FILE_OS=${BASH_REMATCH[4]};
-      FILE_VARIANT=${BASH_REMATCH[5]};
-      FILE_TS_OR_VERSION=${BASH_REMATCH[6]};
-      FILE_EXTENSION=${BASH_REMATCH[7]};
-
-      echo "version:${FILE_VERSION} type: ${FILE_TYPE} arch:${FILE_ARCH} os:${FILE_OS} variant:${FILE_VARIANT} timestamp or version:${FILE_TS_OR_VERSION} timestamp:${TIMESTAMP} extension:${FILE_EXTENSION}";
-    fi
-  done
-
-  # Rename any remaining non-archive file timestamps that have not already been renamed
-  for file in OpenJDK*
+  for file in ibm-semeru-*
   do
     if [[ ! $file =~ $regexArchivesOnly ]];
     then
