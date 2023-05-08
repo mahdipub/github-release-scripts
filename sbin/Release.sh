@@ -36,7 +36,7 @@ timestampRegex="[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}-[[:d
 #      OpenJDK 11_             -jdk        x64_           Linux_         hotspot_         11_28                           .tar.gz
 #regex="OpenJDK([[:digit:]]+)U?(-jre|-jdk)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi)";
 # Semeru-jdk_x64_linux_11.0.12_5_openj9-0.27.0.tar.gz
-regex="ibm-semeru(-open|-certified)(-ea)?(-jre|-jdk|-debugimage|-testimage)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm|bin)";
+regex="ibm-semeru(-open|-certified)(-ea)?(-jre|-jdk|-debugimage|-testimage)_([[:alnum:]\-]+)_([[:alnum:]]+)_([[:alnum:]]+).*\.(tar\.gz|zip|pkg|msi|rpm|bin|sig)";
 regexArchivesOnly="${regex}$";
 
 # Check that a TAG, e.g. jdk11.0.12+7, has been passed in.
@@ -72,81 +72,83 @@ else
    edition="--edition \"${EDITION}\""
 fi
 
-if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
-  # Rename archive files (and their associated files: checksum, metadata, sig) to ensure a consistent timestamp across release
-  for file in ibm-semeru-*
-  do
-    # If file name is an archive rename timestamp along with it's associated files 
-    if [[ $file =~ $regexArchivesOnly ]];
-    then
-      echo "Processing archive file: $file";
+if [ "$RELEASE" == "false" ]; then
+  if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
+    # Rename archive files (and their associated files: checksum, metadata, sig) to ensure a consistent timestamp across release
+    for file in ibm-semeru-*
+    do
+      # If file name is an archive rename timestamp along with it's associated files 
+      if [[ $file =~ $regexArchivesOnly ]];
+      then
+        echo "Processing archive file: $file";
 
-      newName=$(echo "${file}" | sed -r "s/${timestampRegex}/$TIMESTAMP/")
-
-      if [ "${file}" != "${newName}" ]; then
-        # Rename archive and its associated files with new timestamp
-        echo "Renaming ${file} to ${newName}"
-        if [ -f "${file}" ]; then
-          mv "${file}" "${newName}"
-        fi
-        if [ -f "${file}.sha256.txt" ]; then
-          mv "${file}.sha256.txt" "${newName}.sha256.txt"
-        fi
-        if [ -f "${file}.json" ]; then
-          mv "${file}.json" "${newName}.json"
-        fi
-        if [ -f "${file}.sig" ]; then
-          mv "${file}.sig" "${newName}.sig"
-        fi
-      fi
-
-      # Fix checksum file name
-      strippedFileName=$(echo "${newName}" | sed -r "s/.+\\///g")
-      sed -i -r "s/^([0-9a-fA-F ]+).*/\1${strippedFileName}/g" "${newName}.sha256.txt"
-
-      FILE_VERSION=${BASH_REMATCH[1]};
-      FILE_TYPE=${BASH_REMATCH[2]};
-      FILE_ARCH=${BASH_REMATCH[3]};
-      FILE_OS=${BASH_REMATCH[4]};
-      FILE_VARIANT=${BASH_REMATCH[5]};
-      FILE_TS_OR_VERSION=${BASH_REMATCH[6]};
-      FILE_EXTENSION=${BASH_REMATCH[7]};
-
-      echo "version:${FILE_VERSION} type: ${FILE_TYPE} arch:${FILE_ARCH} os:${FILE_OS} variant:${FILE_VARIANT} timestamp or version:${FILE_TS_OR_VERSION} timestamp:${TIMESTAMP} extension:${FILE_EXTENSION}";
-    fi
-  done
-
-  # Rename any remaining non-archive file timestamps that have not already been renamed
-  for file in ibm-semeru-*
-  do
-    if [[ ! $file =~ $regexArchivesOnly ]];
-    then
-      echo "Processing non-archive file: $file";
-
-      # Check no new file type archive has been added without updating regexArchivesOnly
-      if [[ $file == *.tar.gz ]] || [[ $file == *.zip ]] || [[ $file == *.pkg ]] || [[ $file == *.msi ]]; then
-        echo "ERROR: ${file} is an archive but does not match regex ${regexArchivesOnly}, please update sbin/Release.sh"
-        exit 1
-      fi
-
-      if [[ $file =~ $timestampRegex ]]; then
         newName=$(echo "${file}" | sed -r "s/${timestampRegex}/$TIMESTAMP/")
 
         if [ "${file}" != "${newName}" ]; then
-          # Rename non-archive file with new timestamp
+          # Rename archive and its associated files with new timestamp
           echo "Renaming ${file} to ${newName}"
-          mv "${file}" "${newName}"
+          if [ -f "${file}" ]; then
+            mv "${file}" "${newName}"
+          fi
+          if [ -f "${file}.sha256.txt" ]; then
+            mv "${file}.sha256.txt" "${newName}.sha256.txt"
+          fi
+          if [ -f "${file}.json" ]; then
+            mv "${file}.json" "${newName}.json"
+          fi
+          if [ -f "${file}.sig" ]; then
+            mv "${file}.sig" "${newName}.sig"
+          fi
+        fi
+
+        # Fix checksum file name
+        strippedFileName=$(echo "${newName}" | sed -r "s/.+\\///g")
+        sed -i -r "s/^([0-9a-fA-F ]+).*/\1${strippedFileName}/g" "${newName}.sha256.txt"
+
+        FILE_VERSION=${BASH_REMATCH[1]};
+        FILE_TYPE=${BASH_REMATCH[2]};
+        FILE_ARCH=${BASH_REMATCH[3]};
+        FILE_OS=${BASH_REMATCH[4]};
+        FILE_VARIANT=${BASH_REMATCH[5]};
+        FILE_TS_OR_VERSION=${BASH_REMATCH[6]};
+        FILE_EXTENSION=${BASH_REMATCH[7]};
+
+        echo "version:${FILE_VERSION} type: ${FILE_TYPE} arch:${FILE_ARCH} os:${FILE_OS} variant:${FILE_VARIANT} timestamp or version:${FILE_TS_OR_VERSION} timestamp:${TIMESTAMP} extension:${FILE_EXTENSION}";
+      fi
+    done
+
+    # Rename any remaining non-archive file timestamps that have not already been renamed
+    for file in ibm-semeru-*
+    do
+      if [[ ! $file =~ $regexArchivesOnly ]];
+      then
+        echo "Processing non-archive file: $file";
+
+        # Check no new file type archive has been added without updating regexArchivesOnly
+        if [[ $file == *.tar.gz ]] || [[ $file == *.zip ]] || [[ $file == *.pkg ]] || [[ $file == *.msi ]]; then
+          echo "ERROR: ${file} is an archive but does not match regex ${regexArchivesOnly}, please update sbin/Release.sh"
+          exit 1
+        fi
+
+        if [[ $file =~ $timestampRegex ]]; then
+          newName=$(echo "${file}" | sed -r "s/${timestampRegex}/$TIMESTAMP/")
+
+          if [ "${file}" != "${newName}" ]; then
+            # Rename non-archive file with new timestamp
+            echo "Renaming ${file} to ${newName}"
+            mv "${file}" "${newName}"
+          fi
         fi
       fi
-    fi
-  done
+    done
 
-  # Grab the list of files to upload
-  # NOTE: If adding something here you may need to change the EXPECTED values in releaseCheck.sh
-  files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin,.sig} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
-else 
-  #TODO: enhance to a general file name - update groovy release() - case ~/.*AQAvitTapFiles.*/: "adopt"; break;
-  files=$(ls "$PWD"/AQAvitTapFiles.tar.gz)
+    # Grab the list of files to upload
+    # NOTE: If adding something here you may need to change the EXPECTED values in releaseCheck.sh
+    files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin,.sig} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
+  else
+    #TODO: enhance to a general file name - update groovy release() - case ~/.*AQAvitTapFiles.*/: "adopt"; break;
+    files=$(ls "$PWD"/AQAvitTapFiles.tar.gz)
+  fi
 fi
 
 echo ""
