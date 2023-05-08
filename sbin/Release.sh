@@ -72,8 +72,8 @@ else
    edition="--edition \"${EDITION}\""
 fi
 
-if [ "$RELEASE" == "false" ]; then
-  if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
+if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
+  if [ "$RELEASE" == "false" ]; then
     # Rename archive files (and their associated files: checksum, metadata, sig) to ensure a consistent timestamp across release
     for file in ibm-semeru-*
     do
@@ -141,15 +141,15 @@ if [ "$RELEASE" == "false" ]; then
         fi
       fi
     done
-
-    # Grab the list of files to upload
-    # NOTE: If adding something here you may need to change the EXPECTED values in releaseCheck.sh
-    files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin,.sig} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
-  else
-    #TODO: enhance to a general file name - update groovy release() - case ~/.*AQAvitTapFiles.*/: "adopt"; break;
-    files=$(ls "$PWD"/AQAvitTapFiles.tar.gz)
   fi
+  # Grab the list of files to upload
+  # NOTE: If adding something here you may need to change the EXPECTED values in releaseCheck.sh
+  files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin,.sig} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
+else
+  #TODO: enhance to a general file name - update groovy release() - case ~/.*AQAvitTapFiles.*/: "adopt"; break;
+  files=$(ls "$PWD"/AQAvitTapFiles.tar.gz)
 fi
+
 
 echo ""
 echo "RELEASE flag is set to: $RELEASE"
