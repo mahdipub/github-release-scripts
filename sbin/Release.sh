@@ -144,7 +144,8 @@ if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
   fi
   # Grab the list of files to upload
   # NOTE: If adding something here you may need to change the EXPECTED values in releaseCheck.sh
-  files=`ls $PWD/ibm-semeru-*{.tar.gz,.sha256.txt,.zip,.pkg,.msi,.json,.rpm,.bin,.sig} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'`
+  files=$(find $PWD \( -name "ibm-semeru-*.tar.gz" -o -name "ibm-semeru-*.sha256.txt" -o -name "ibm-semeru-*.zip" -o -name "ibm-semeru-*.pkg" -o -name "ibm-semeru-*.msi" -o -name "ibm-semeru-*.json" -o -name "ibm-semeru-*.rpm" -o -name "ibm-semeru-*.bin" -o -name "ibm-semeru-*.sig" \) | tr '\n' ' ')
+
 else
   #TODO: enhance to a general file name - update groovy release() - case ~/.*AQAvitTapFiles.*/: "adopt"; break;
   files=$(ls "$PWD"/AQAvitTapFiles.tar.gz)
