@@ -79,7 +79,17 @@ class UploadAdoptReleaseFiles {
                     }
 
             println("Uploading ${file.name}")
-            release.uploadAsset(file, Files.probeContentType(file.toPath()))
+
+            // Determine the MIME type explicitly for .msi files
+            String mimeType = 'application/octet-stream'  // Default MIME type
+            if (file.name.endsWith('.msi')) {
+                mimeType = 'application/x-msi'  // Explicit MIME type for .msi files
+            } else {
+                mimeType = Files.probeContentType(file.toPath())  // Auto-detect MIME type for other files
+            }
+
+            // Upload the file with the determined MIME type
+            release.uploadAsset(file, mimeType)
         }
     }
 
