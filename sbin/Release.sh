@@ -186,7 +186,7 @@ fi
 if [ "$DRY_RUN" == "false" ]; then
     cd adopt-github-release || exit 1
     chmod +x gradlew
-    GRADLE_USER_HOME=./gradle-cache ./gradlew --no-daemon run --args="--version \"${VERSION}\" --tag \"${TAG}\" --description \"${description}\" ${server} ${org} ${edition} $RELEASE_OPTION $files"
+    GRADLE_USER_HOME=./gradle-cache ./gradlew --no-daemon run --args="--prerelease=\"${PRERELEASE}\" --version \"${VERSION}\" --tag \"${TAG}\" --description \"${description}\" ${server} ${org} ${edition} $RELEASE_OPTION $files"
     # Run releaseCheck.sh to check that the correct number of artifacts are live
     if [ -z "$TIMESTAMP" -a "$UPLOAD_TESTRESULTS_ONLY" = "false" ]; then
       echo "*** PERFORMING RELEASE CHECK TO SEE IF THERE ARE ANY UNEXPECTED PROBLEMS ***"
