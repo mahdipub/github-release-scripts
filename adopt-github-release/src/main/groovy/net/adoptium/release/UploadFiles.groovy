@@ -69,7 +69,7 @@ class UploadAdoptReleaseFiles {
         def numberVersion = version.replaceAll(/[^0-9]/, "")
         def repoName = "${org}/temurin${numberVersion}-binaries"
 
-        if (vendor == "open") {
+        if (vendor == "open" || vendor == "adopt" || vendor ==~ /m\d+/) {
             repoName = "${org}/semeru${numberVersion}-binaries"
         } else if (vendor == "certified") {
             repoName = "${org}/semeru${numberVersion}-certified-binaries"
@@ -113,6 +113,8 @@ class UploadAdoptReleaseFiles {
         println("got releases")
         if (release == null) {
             println("releases was null")
+            println("(!this.release) = ${!this.release}")
+            println("(this.release) = ${this.release}")
             release = repo
                     .createRelease(tag)
                     .body(description)
@@ -129,7 +131,14 @@ class UploadAdoptReleaseFiles {
 
 static void main(String[] args) {
     OptionAccessor options = parseArgs(args)
-
+    println("Options: ${options}")
+    println("Tag: ${options.t}")
+    println("Description: ${options.d}")
+    println("Release: ${options.r}")
+    println("Version: ${options.v}")
+    println("Server: ${options.s}")
+    println("Org: ${options.o}")
+    println("Edition: ${options.p}")
     List<File> files = options.arguments()
             .collect { new File(it) }
 

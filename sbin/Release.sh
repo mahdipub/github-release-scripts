@@ -47,10 +47,10 @@ if [ -z "${TAG}" ]; then
 fi
 
 # Nightlies must have a TIMESTAMP.
-if [ "$RELEASE" == "false" ] && [ -z "${TIMESTAMP}" ]; then
-    echo "Nightly must have a TIMESTAMP set"
-    exit 1
-fi
+# if [ "$RELEASE" == "false" ] && [ -z "${TIMESTAMP}" ]; then
+#     echo "Nightly must have a TIMESTAMP set"
+#     exit 1
+# fi
 
 # Set the GitHub server to push to
 if [ -z "${GITHUB_SERVER}" ]; then
@@ -144,8 +144,8 @@ if [ "$UPLOAD_TESTRESULTS_ONLY" == "false" ]; then
   fi
   # Grab the list of files to upload
   # NOTE: If adding something here you may need to change the EXPECTED values in releaseCheck.sh
-  files=$(find $PWD \( -name "ibm-semeru-*.tar.gz" -o -name "ibm-semeru-*.sha256.txt" -o -name "ibm-semeru-*.zip" -o -name "ibm-semeru-*.pkg" -o -name "ibm-semeru-*.msi" -o -name "ibm-semeru-*.json" -o -name "ibm-semeru-*.rpm" -o -name "ibm-semeru-*.bin" -o -name "ibm-semeru-*.sig" \) | tr '\n' ' ')
-
+  files=$(find $PWD \( -name "ibm-semeru-*.tar.gz" -o -name "ibm-semeru-*.txt" -o -name "ibm-semeru-*.zip" -o -name "ibm-semeru-*.pkg" -o -name "ibm-semeru-*.msi" -o -name "ibm-semeru-*.json" -o -name "ibm-semeru-*.rpm" -o -name "ibm-semeru-*.bin" -o -name "ibm-semeru-*.sig" \) | tr '\n' ' ')
+  printf "Files to upload: %s\n" "$files"
 else
   #TODO: enhance to a general file name - update groovy release() - case ~/.*AQAvitTapFiles.*/: "adopt"; break;
   files=$(ls "$PWD"/AQAvitTapFiles.tar.gz)
@@ -156,11 +156,13 @@ echo ""
 echo "RELEASE flag is set to: $RELEASE"
 echo ""
 
-RELEASE_OPTION=""
+RELEASE_OPTION=''
+
 if [ "$RELEASE" == "true" ]; then
+    RELEASE_OPTION="--release \"${RELEASE}\""
     versionNumber=${VERSION#"JDK"}
-    if [ "$EDITION" == "open" ]; then
-        description="Official Release of IBM Semeru Runtime Open Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
+    if [ "$EDITION" == "open" ] || [ "$EDITION" == "adopt" ]; then
+      description="Official Release of IBM Semeru Runtime Open Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
 License: GPL v2 with Classpath exception
 Certification: No"
     elif [ "$EDITION" == "certified" ]; then
@@ -171,21 +173,34 @@ Certification: Yes"
         description="Early Access Release of IBM Semeru Runtime Open Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
 License: GPL v2 with Classpath exception
 Certification: No"
-    fi
-  RELEASE_OPTION="--release"
+    elif [[ "$EDITION" =~ ^m[0-9]+$ ]]; then
+      milestoneNumber=${EDITION#m}
+      description="Milestone $milestoneNumber Release of IBM Semeru Runtime Open Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
+License: GPL v2 with Classpath exception
+Certification: No"
+    fi    
 elif [ "$UPLOAD_TESTRESULTS_ONLY" == "true" ]; then
   echo "Test results are only needed to upload for releases!"
   exit 1
 else
+  if [[ "$EDITION" =~ ^m[0-9]+$ ]]; then
+        milestoneNumber=${EDITION#m}
+        description="Milestone $milestoneNumber Release of IBM Semeru Runtime Open Edition for Java $versionNumber with Eclipse OpenJ9 $TAG
+        License: GPL v2 with Classpath exception
+        Certification: No"
+  fi    
   # -beta is a special designation that we must use to indicate non GA (non TCK'd) builds.
-  TAG="${TAG}-beta"
-  description="Nightly Build of $TAG"
+  echo "&&&&&&&&&&&&&&& TAG IS : ${TAG}"
+  # TAG="${TAG}-beta"
+  # description="Nightly Build of $TAG"
+
 fi
 
 # Hand over to the Groovy script that uses the GitHub API to actually create the release and upload files
 if [ "$DRY_RUN" == "false" ]; then
     cd adopt-github-release || exit 1
     chmod +x gradlew
+    echo Arguments before reconstruction: ./gradle-cache ./gradlew --no-daemon run --args="--version \"${VERSION}\" --tag \"${TAG}\" --description \"${description}\" ${server} ${org} ${edition} $RELEASE_OPTION $files"
     GRADLE_USER_HOME=./gradle-cache ./gradlew --no-daemon run --args="--version \"${VERSION}\" --tag \"${TAG}\" --description \"${description}\" ${server} ${org} ${edition} $RELEASE_OPTION $files"
     # Run releaseCheck.sh to check that the correct number of artifacts are live
     if [ -z "$TIMESTAMP" -a "$UPLOAD_TESTRESULTS_ONLY" = "false" ]; then
